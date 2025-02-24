@@ -31,6 +31,9 @@ jobs:
           name = "moepush"
           compatibility_date = "2024-02-24"
           
+          # 添加 Pages 构建输出目录配置
+          pages_build_output_dir = ".vercel/output/static"
+          
           [vars]
           D1_DATABASE_NAME = "${{ secrets.D1_DATABASE_NAME }}"
           AUTH_GITHUB_ID = "${{ secrets.AUTH_GITHUB_ID }}"
@@ -51,8 +54,14 @@ jobs:
           AUTH_GITHUB_ID: ${{ secrets.AUTH_GITHUB_ID }}
           AUTH_GITHUB_SECRET: ${{ secrets.AUTH_GITHUB_SECRET }}
         run: |
+          # 确保 D1_DATABASE_NAME 不为空
+          if [ -z "$D1_DATABASE_NAME" ]; then
+            echo "Error: D1_DATABASE_NAME is not set"
+            exit 1
+          fi
+          
           # 创建数据库（如果不存在）
-          pnpm wrangler d1 create ${{ secrets.D1_DATABASE_NAME }} || true
+          pnpm wrangler d1 create "$D1_DATABASE_NAME" || true
           
           # 部署应用
           pnpm run deploy
